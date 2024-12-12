@@ -15,7 +15,7 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         state = getWindowState(),
         title = "SLog",
-        icon = if (isMacOs()) null else painterResource("image/icon.svg"),
+        icon = if (isMacOs()) null else painterResource("image/icon.png"),
         undecorated = false,
         onKeyEvent = {
             AppEvent.notify(AppEvent.identifyKeyEvent(it))

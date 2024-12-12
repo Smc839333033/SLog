@@ -507,7 +507,7 @@ fun SearchBar(
 
         Spacer(modifier = Modifier.width(10.dp))
 
-        var searchText by remember { mutableStateOf("") }
+        var searchText by remember { logPanelState.searchText }
 
         CustomTextMenuProvider {
             BasicTextField(

@@ -35,6 +35,7 @@ data class LogPanelState(
     val markList: SnapshotStateList<LogInfo> = mutableStateListOf(),
 
     val isShowSearchBar: MutableState<Boolean> = mutableStateOf(false),
+    val searchText: MutableState<String> = mutableStateOf(""),
     val searchResultList: SnapshotStateList<SearchTextInfo> = mutableStateListOf(),
     var searchNowIndex: MutableState<Int> = mutableStateOf(-1)
 ) {
@@ -104,6 +105,7 @@ data class LogPanelState(
 
     fun search(text: String, result: (Boolean) -> Unit) {
         if (filterList.isEmpty()) return
+        searchText.value = text
         scope.launch(Dispatchers.IO) {
             val resultList = ArrayList<SearchTextInfo>()
             repeat(filterList.size) {
