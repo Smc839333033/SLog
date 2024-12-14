@@ -18,7 +18,7 @@ fun LogSelectionContainer(modifier: Modifier = Modifier, content: @Composable ()
     val clipboardManager = LocalClipboardManager.current
     CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
         SelectionContainer(modifier = modifier.onKeyEvent {
-            if (it.type == KeyEventType.KeyUp && (it.key == Key.CtrlLeft || it.key == Key.CtrlRight)) {
+            if (it.type == KeyEventType.KeyUp && (it.key == Key.CtrlLeft || it.key == Key.CtrlRight || it.utf16CodePoint == 65535)) {
                 if (clipboardManager.hasText()) {
                     clipboardManager.getText()?.text?.let { text ->
                         if (text.contains(SP_Placeholders)) {

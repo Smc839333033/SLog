@@ -428,7 +428,7 @@ fun MarkLogContentPanel(
                             if (logPanelState.markList.isNotEmpty()) {
                                 val stringBuffer = StringBuilder("")
                                 logPanelState.markList.forEach {
-                                    stringBuffer.append("${it.lineNumber}    ${it.text}\n")
+                                    stringBuffer.append("${it.lineNumber}    ${it.text.replace(SP_Placeholders, "")}\n")
                                 }
                                 clipboardManager.setText(AnnotatedString(stringBuffer.toString()))
                                 onToast("已将标记日志复制到剪切板")
