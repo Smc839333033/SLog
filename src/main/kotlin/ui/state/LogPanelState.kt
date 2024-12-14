@@ -26,9 +26,9 @@ data class LogPanelState(
     val pageInfo: PageInfo,
     val scope: CoroutineScope,
 
+    val updateVersion: MutableState<Int> = mutableStateOf(0),
     val isParsing: MutableState<Boolean> = mutableStateOf(false),
 
-    val updateVersion: MutableState<Int> = mutableStateOf(0),
     var operationTextList: ArrayList<OperationText> = ArrayList(),
     var highlightOperationList: List<OperationText> = ArrayList(),
     val wholeList: SnapshotStateList<LogInfo> = mutableStateListOf(),
@@ -41,66 +41,62 @@ data class LogPanelState(
     var searchNowIndex: MutableState<Int> = mutableStateOf(-1)
 ) {
     init {
-        when (pageInfo.pageType) {
-            PageType.File -> {
-                readFile()
-            }
+        scope.launch(Dispatchers.IO) {
+            when (pageInfo.pageType) {
+                PageType.File -> {
+                    readFile()
+                }
 
-            PageType.PasteText -> {
-                readPasteText()
+                PageType.PasteText -> {
+                    readPasteText()
+                }
             }
         }
     }
 
     private fun readFile() {
         pageInfo.filePath?.let {
-            scope.launch(Dispatchers.IO) {
-                isParsing.value = true
-                val file = File(it)
-                if (!file.exists()) {
-                    return@launch
-                }
-                val inputStream: InputStream = file.inputStream()
-                val originalList: ArrayList<LogInfo> = ArrayList()
-                inputStream.bufferedReader().useLines { lines ->
-                    lines.forEachIndexed { index, s ->
-                        originalList.add(
-                            LogInfo(
-                                lineNumber = index,
-                                text = if ("" != s) s + SP_Placeholders else s
-                            )
-                        )
-                    }
-                }
-                filterList.addAll(originalList)
-                wholeList.addAll(originalList)
-                originalList.clear()
-                isParsing.value = false
+            isParsing.value = true
+            val file = File(it)
+            if (!file.exists()) {
+                return
             }
+            val inputStream: InputStream = file.inputStream()
+            val originalList: ArrayList<LogInfo> = ArrayList()
+            inputStream.bufferedReader().useLines { lines ->
+                lines.forEachIndexed { index, s ->
+                    originalList.add(
+                        LogInfo(
+                            lineNumber = index,
+                            text = if ("" != s) s + SP_Placeholders else s
+                        )
+                    )
+                }
+            }
+            wholeList.addAll(originalList)
+            filterList.addAll(originalList)
+            isParsing.value = false
         }
     }
 
     private fun readPasteText() {
         this.pageInfo.pasteText?.let {
-            scope.launch(Dispatchers.IO) {
-                isParsing.value = true
-                val inputStream: InputStream = it.byteInputStream()
-                val originalList: ArrayList<LogInfo> = ArrayList()
-                inputStream.bufferedReader().useLines { lines ->
-                    lines.forEachIndexed { index, s ->
-                        originalList.add(
-                            LogInfo(
-                                lineNumber = index,
-                                text = if ("" != s) s + SP_Placeholders else s
-                            )
+            isParsing.value = true
+            val inputStream: InputStream = it.byteInputStream()
+            val originalList: ArrayList<LogInfo> = ArrayList()
+            inputStream.bufferedReader().useLines { lines ->
+                lines.forEachIndexed { index, s ->
+                    originalList.add(
+                        LogInfo(
+                            lineNumber = index,
+                            text = if ("" != s) s + SP_Placeholders else s
                         )
-                    }
+                    )
                 }
-                filterList.addAll(originalList)
-                wholeList.addAll(originalList)
-                originalList.clear()
-                isParsing.value = false
             }
+            wholeList.addAll(originalList)
+            filterList.addAll(originalList)
+            isParsing.value = false
         }
     }
 
@@ -149,6 +145,7 @@ data class LogPanelState(
     fun stopSearch() {
         searchResultList.clear()
         searchNowIndex.value = -1
+        searchText.value = ""
         updateVersion.value++
     }
 

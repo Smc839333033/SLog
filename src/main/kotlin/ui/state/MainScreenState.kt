@@ -18,7 +18,8 @@ data class PageInfo(
     val pageName: String,
     val pageType: PageType = PageType.File,
     val filePath: String? = null,
-    val pasteText: String? = null
+    val pasteText: String? = null,
+    val id: Long = System.currentTimeMillis()
 )
 
 class MainScreenState {
@@ -29,6 +30,8 @@ class MainScreenState {
     fun isShow() = isShowPasteDialog.value
 
     fun getPage() = pages
+
+    fun getPageInfo(index: Int) = pages[index]
 
     fun showPasteDialog() {
         isShowPasteDialog.value = true

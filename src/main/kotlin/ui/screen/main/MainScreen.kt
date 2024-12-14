@@ -65,7 +65,8 @@ fun MainScreen(mainScreenState: MainScreenState = rememberMainScreenState()) {
             )
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TabBar(mainScreenState.getPage(), pagerState,
+            TabBar(
+                mainScreenState.getPage(), pagerState,
                 closePage = {
                     mainScreenState.closePage(it)
                 },
@@ -85,9 +86,10 @@ fun MainScreen(mainScreenState: MainScreenState = rememberMainScreenState()) {
                     modifier = Modifier.fillMaxSize().size(300.dp).background(Color.DarkGray),
                     state = pagerState,
                     beyondViewportPageCount = 10,
+                    key = { index -> mainScreenState.getPageInfo(index).id },
                     userScrollEnabled = false
                 ) {
-                    LogViewPanel(mainScreenState.getPage()[it])
+                    LogViewPanel(mainScreenState.getPageInfo(it))
                 }
                 if (mainScreenState.getPage().isEmpty()) {
                     Box(
@@ -100,7 +102,8 @@ fun MainScreen(mainScreenState: MainScreenState = rememberMainScreenState()) {
             }
         }
 
-        DialogPanel(mainScreenState.isShow(),
+        DialogPanel(
+            mainScreenState.isShow(),
             pasteTipDialogSubmit = {
                 mainScreenState.addPageByPaste(clipboardManager.getText().toString()) {
                     if (it)

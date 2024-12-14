@@ -199,9 +199,14 @@ fun TopFilterLogContentPanel(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val change by remember { logPanelState.updateVersion }
+                var count by remember { mutableStateOf(0) }
+                LaunchedEffect(change) {
+                    count = logPanelState.filterList.size
+                }
                 Text(
                     modifier = Modifier.offset(y = (-3).dp),
-                    text = "${logPanelState.filterList.size}",
+                    text = "$count",
                     color = Color.LightGray,
                     fontSize = 11.sp
                 )
@@ -428,7 +433,14 @@ fun MarkLogContentPanel(
                             if (logPanelState.markList.isNotEmpty()) {
                                 val stringBuffer = StringBuilder("")
                                 logPanelState.markList.forEach {
-                                    stringBuffer.append("${it.lineNumber}    ${it.text.replace(SP_Placeholders, "")}\n")
+                                    stringBuffer.append(
+                                        "${it.lineNumber + 1}    ${
+                                            it.text.replace(
+                                                SP_Placeholders,
+                                                ""
+                                            )
+                                        }\n"
+                                    )
                                 }
                                 clipboardManager.setText(AnnotatedString(stringBuffer.toString()))
                                 onToast("已将标记日志复制到剪切板")
@@ -468,7 +480,6 @@ fun MarkLogContentPanel(
                     }
                 }
             }
-
             VerticalScrollbar(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 adapter = rememberScrollbarAdapter(scrollState = lazyListState),
@@ -555,7 +566,6 @@ fun SearchBar(
             modifier = Modifier.scale(0.8f).rotate(90f).clickable {
                 findPre()
             })
-
 
         Spacer(modifier = Modifier.width(10.dp))
 
@@ -661,7 +671,7 @@ fun TextItem(
         }
         DisableSelection {
             LogText(
-                text = logInfo.lineNumber.toString(),
+                text = (logInfo.lineNumber + 1).toString(),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (hover) Color.Green else Color.LightGray,

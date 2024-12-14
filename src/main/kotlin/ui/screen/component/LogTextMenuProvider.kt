@@ -10,6 +10,59 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 
 
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun CustomTextMenuProvider(content: @Composable () -> Unit) {
+    val textMenu = staticCompositionLocalOf {
+        object : TextContextMenu {
+            @Composable
+            override fun Area(
+                textManager: TextContextMenu.TextManager,
+                state: ContextMenuState,
+                content: @Composable () -> Unit
+            ) {
+                val sp = "      "
+                val items = {
+                    listOfNotNull(
+                        textManager.cut?.let {
+                            ContextMenuItem("${sp}剪切", it)
+                        },
+                        textManager.copy?.let {
+                            ContextMenuItem("${sp}复制", it)
+                        },
+                        textManager.paste?.let {
+                            ContextMenuItem("${sp}粘贴", it)
+                        },
+                        textManager.selectAll?.let {
+                            ContextMenuItem("${sp}全选", it)
+                        },
+                    )
+                }
+                ContextMenuArea(items, state, content = content)
+            }
+        }
+    }.current
+    CompositionLocalProvider(
+        LocalTextContextMenu provides object : TextContextMenu {
+            @Composable
+            override fun Area(
+                textManager: TextContextMenu.TextManager,
+                state: ContextMenuState,
+                content: @Composable () -> Unit
+            ) {
+                ContextMenuDataProvider({
+                    emptyList()
+                }) {
+                    textMenu.Area(textManager, state, content = content)
+                }
+            }
+        },
+        content = content
+    )
+}
+
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LogTextMenuProvider(

@@ -117,7 +117,7 @@ class TextOperationBarState {
         return operationTexts.contains(operationText)
     }
 
-    fun getOperationTexts() = operationTexts.toMutableList()
+    private fun getOperationTexts() = operationTexts.toMutableList()
 
     fun operationTextsSize() = operationTexts.size
 
@@ -376,55 +376,6 @@ fun OperationTextItem(operationText: OperationText, onSelect: (Boolean) -> Unit,
 }
 
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun CustomTextMenuProvider(content: @Composable () -> Unit) {
-    val textMenu = staticCompositionLocalOf {
-        object : TextContextMenu {
-            @Composable
-            override fun Area(
-                textManager: TextContextMenu.TextManager,
-                state: ContextMenuState,
-                content: @Composable () -> Unit
-            ) {
-                val items = {
-                    listOfNotNull(
-                        textManager.cut?.let {
-                            ContextMenuItem("剪切", it)
-                        },
-                        textManager.copy?.let {
-                            ContextMenuItem("复制", it)
-                        },
-                        textManager.paste?.let {
-                            ContextMenuItem("粘贴", it)
-                        },
-                        textManager.selectAll?.let {
-                            ContextMenuItem("全选", it)
-                        },
-                    )
-                }
-                ContextMenuArea(items, state, content = content)
-            }
-        }
-    }.current
-    CompositionLocalProvider(
-        LocalTextContextMenu provides object : TextContextMenu {
-            @Composable
-            override fun Area(
-                textManager: TextContextMenu.TextManager,
-                state: ContextMenuState,
-                content: @Composable () -> Unit
-            ) {
-                ContextMenuDataProvider({
-                    emptyList()
-                }) {
-                    textMenu.Area(textManager, state, content = content)
-                }
-            }
-        },
-        content = content
-    )
-}
 
 private fun getImagePathByOperationType(operationType: OperationType) = when (operationType) {
     OperationType.FILTER -> {
