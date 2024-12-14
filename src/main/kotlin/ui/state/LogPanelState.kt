@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ui.screen.component.OperationText
 import ui.screen.component.OperationType
+import ui.screen.component.SP_Placeholders
 import ui.screen.component.isSameList
 import util.addStyle
 import util.isShielded
@@ -66,7 +67,7 @@ data class LogPanelState(
                         originalList.add(
                             LogInfo(
                                 lineNumber = index,
-                                text = s
+                                text = if ("" != s) s + SP_Placeholders else s
                             )
                         )
                     }
@@ -90,7 +91,7 @@ data class LogPanelState(
                         originalList.add(
                             LogInfo(
                                 lineNumber = index,
-                                text = s
+                                text = if ("" != s) s + SP_Placeholders else s
                             )
                         )
                     }

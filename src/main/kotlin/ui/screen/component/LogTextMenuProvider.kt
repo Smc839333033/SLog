@@ -6,6 +6,8 @@ import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -30,9 +32,6 @@ fun LogTextMenuProvider(
                         textManager.cut?.let {
                             ContextMenuItem("${sp}剪切", it)
                         },
-                        textManager.copy?.let {
-                            ContextMenuItem("${sp}复制", it)
-                        },
                         textManager.paste?.let {
                             ContextMenuItem("${sp}粘贴", it)
                         },
@@ -53,6 +52,7 @@ fun LogTextMenuProvider(
                 state: ContextMenuState,
                 content: @Composable () -> Unit
             ) {
+                val clipboardManager = LocalClipboardManager.current
                 ContextMenuDataProvider({
                     val text = textManager.selectedText.text
                     if (text == "") {
@@ -60,6 +60,15 @@ fun LogTextMenuProvider(
                     }
 
                     val list = mutableListOf<ContextMenuItem>()
+                    list.add(
+                        ContextMenuItem("${sp}复制") {
+                            clipboardManager.setText(
+                                AnnotatedString(
+                                    if (text.contains(SP_Placeholders))
+                                        text.replace(SP_Placeholders, SP_Enter) else text
+                                )
+                            )
+                        })
                     if (isShowSearch) {
                         list.add(ContextMenuItem("${sp}搜索") {
                             search(text)
