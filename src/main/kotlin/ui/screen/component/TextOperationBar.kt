@@ -301,7 +301,7 @@ fun InputOperationTextField(operationTextReceiver: (OperationText) -> Unit) {
                                 }.focusRequester(focusRequester),
                             value = inputText,
                             onValueChange = {
-                                inputText = it
+                                inputText = it.trimEnd('\n')
                             },
                             singleLine = true,
                             textStyle = TextStyle(fontSize = 15.sp)

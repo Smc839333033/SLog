@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import util.AppWindow
 import java.awt.FileDialog
 import java.io.File
+import java.util.UUID
 import kotlin.math.min
 
 enum class PageType {
@@ -19,7 +20,7 @@ data class PageInfo(
     val pageType: PageType = PageType.File,
     val filePath: String? = null,
     val pasteText: String? = null,
-    val id: Long = System.currentTimeMillis()
+    val id: String = UUID.randomUUID().toString()
 )
 
 class MainScreenState {

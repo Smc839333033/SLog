@@ -531,7 +531,7 @@ fun SearchBar(
                     }.focusRequester(focusRequester),
                 value = searchText,
                 onValueChange = {
-                    searchText = it
+                    searchText = it.trimEnd('\n')
                 },
                 singleLine = true,
                 textStyle = TextStyle(fontSize = 15.sp, color = Color.White),
