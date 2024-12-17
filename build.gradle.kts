@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm")
@@ -25,10 +24,6 @@ dependencies {
 }
 
 compose.resources {
-    customDirectory(
-        sourceSetName = "commonMain",
-        directoryProvider = provider { layout.projectDirectory.dir("src/main/resources/commonMain/composeResources") }
-    )
     publicResClass = true
     packageOfResClass = "com.smc.slog.resources"
     generateResClass = always
@@ -69,14 +64,6 @@ compose.desktop {
             }
         }
     }
-}
-
-
-
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    languageVersion = "1.9"
 }
 
 val macExtraPlistKeys: String

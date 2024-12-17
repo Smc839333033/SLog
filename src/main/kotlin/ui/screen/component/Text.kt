@@ -76,7 +76,7 @@ fun LogText(
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = 1,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current.copy(baselineShift = BaselineShift(-0.3f),)
+    style: TextStyle = LocalTextStyle.current.copy(baselineShift = BaselineShift(-0.3f))
 ) {
     Text(
         text = text,

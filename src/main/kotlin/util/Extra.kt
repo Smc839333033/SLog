@@ -47,13 +47,6 @@ fun match(text: String, regexpOperations: List<OperationText>): Boolean {
     return false
 }
 
-fun getNumByChar(str: String): String {
-    val regEx = "[^0-9]"
-    val p: Pattern = Pattern.compile(regEx)
-    val m: Matcher = p.matcher(str)
-    return m.replaceAll("").trim()
-}
-
 fun String.countSubstringOccurrences(substring: String): Int {
     val pattern: Pattern = Pattern.compile(substring)
     val matcher: Matcher = pattern.matcher(this)

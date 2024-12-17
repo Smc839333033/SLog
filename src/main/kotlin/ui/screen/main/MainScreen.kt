@@ -17,7 +17,10 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.install4j.api.launcher.StartupNotification
+import com.smc.slog.resources.Res
+import com.smc.slog.resources.paste_tip
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import ui.screen.component.DialogPanel
 import ui.screen.component.TabBar
 import ui.state.MainScreenState
@@ -114,7 +117,7 @@ fun MainScreen(mainScreenState: MainScreenState = rememberMainScreenState()) {
                         modifier = Modifier.fillMaxSize().background(logPanelBgColor),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("拖拽文件或粘贴内容到此处以查看日志", fontSize = 12.sp, color = Color.LightGray)
+                        Text(stringResource(Res.string.paste_tip), fontSize = 12.sp, color = Color.LightGray)
                     }
                 }
             }

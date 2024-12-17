@@ -14,10 +14,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smc.slog.resources.Res
+import com.smc.slog.resources.icon
 import kotlinx.coroutines.*
+import org.jetbrains.compose.resources.painterResource
 
 
 class ToastState {
@@ -52,7 +54,7 @@ fun Toast(toastState: ToastState = rememberToastState()) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Image(painterResource("image/icon.png"), null, modifier = Modifier.size(15.dp))
+            Image(painterResource(Res.drawable.icon), null, modifier = Modifier.size(15.dp))
             Spacer(modifier = Modifier.width(10.dp))
             Text(text = toastState.text, color = Color.Black, fontSize = 12.sp)
         }

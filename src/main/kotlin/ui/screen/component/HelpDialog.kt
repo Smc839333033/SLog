@@ -14,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +21,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smc.slog.resources.Res
+import com.smc.slog.resources.icon
+import org.jetbrains.compose.resources.painterResource
 
 
 data class ShowDialogStata(val isShowDialog: Boolean = false) {
@@ -62,7 +64,7 @@ fun HelpDialog(showDialogStata: ShowDialogStata = rememberShowDialogStata()) {
                 Spacer(Modifier.height(30.dp))
 
                 Image(
-                    painterResource("image/icon.png"),
+                    painterResource(Res.drawable.icon),
                     null,
                     modifier = Modifier.size(60.dp).offset(x = 20.dp)
                 )

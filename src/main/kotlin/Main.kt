@@ -1,11 +1,11 @@
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.smc.slog.resources.Res
-import com.smc.slog.resources.aiming
 import com.smc.slog.resources.app_name
+import com.smc.slog.resources.icon
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import util.getWindowState
 import ui.screen.main.MainScreen
@@ -19,8 +19,8 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         state = getWindowState(),
-        title = "SLog",
-        icon = if (isMacOs()) null else painterResource("image/icon.png"),
+        title = stringResource(Res.string.app_name),
+        icon = if (isMacOs()) null else painterResource(Res.drawable.icon),
         undecorated = false,
         onKeyEvent = {
             AppEvent.notify(AppEvent.identifyKeyEvent(it))

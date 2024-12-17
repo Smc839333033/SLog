@@ -14,13 +14,18 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smc.slog.resources.Res
+import com.smc.slog.resources.add_file
+import com.smc.slog.resources.close_small
+import com.smc.slog.resources.plus
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import ui.state.PageInfo
 
 
@@ -102,7 +107,7 @@ fun TabBarItem(
         horizontalArrangement = Arrangement.Center
     ) {
         Spacer(Modifier.width(10.dp))
-        Image(painter = painterResource("image/close-small.svg"), null, modifier = Modifier.clickable {
+        Image(painter = painterResource(Res.drawable.close_small), null, modifier = Modifier.clickable {
             iconAction()
         })
         Spacer(Modifier.width(5.dp))
@@ -155,10 +160,10 @@ fun TabAddFileBarItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.width(10.dp))
-        Image(painter = painterResource("image/plus.svg"), null)
+        Image(painter = painterResource(Res.drawable.plus), null)
         Spacer(Modifier.width(5.dp))
         Text(
-            "添加文件",
+            stringResource(Res.string.add_file),
             color = Color.White,
             fontSize = 11.sp,
             modifier = Modifier.widthIn(80.dp, 320.dp).padding(end = 15.dp, bottom = 3.dp),

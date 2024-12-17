@@ -1,16 +1,34 @@
 <resources>
-    <string name="app_name">Compose Resources App</string>
-    <string name="hello">😊 Hello world!</string>
-    <string name="multi_line">Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit.
-        Donec eget turpis ac sem ultricies consequat.</string>
-    <string name="str_template">Hello, %1$s!\nYou have %2$d new messages.</string>
-    <string-array name="str_arr">
-        <item>item \u2605</item>
-        <item>item \u2318</item>
-        <item>item \u00BD</item>
-    </string-array>
-    <plurals name="new_message">
-        <item quantity="one">%1$d new message</item>
-        <item quantity="other">%1$d new messages</item>
-    </plurals>
+    <string name="app_name">SLog</string>
+    <string name="paste_tip">拖拽文件或粘贴内容到此处以查看日志</string>
+    <string name="already_exists">该操作字符已存在</string>
+    <string name="jump_completed">已完成跳转</string>
+
+    <string name="cut">      剪切</string>
+    <string name="copy">      复制</string>
+    <string name="paste">      粘贴</string>
+    <string name="select_all">      全选</string>
+    <string name="search">      搜索</string>
+    <string name="filter">      筛选</string>
+    <string name="shield">      屏蔽</string>
+    <string name="highlight">      高亮</string>
+
+    <string name="ask_open_text">需要打开粘贴的文本内容吗？</string>
+    <string name="open_tab">将新开Tab页打开</string>
+    <string name="cancel">取消</string>
+    <string name="submit">确定</string>
+
+    <string name="add_file">添加文件</string>
+    <string name="text_filter">字符筛选</string>
+    <string name="text_shield">字符屏蔽</string>
+    <string name="text_highlight">字符高亮</string>
+    <string name="rex_filter">正则筛选</string>
+    <string name="rex_shield">正则屏蔽</string>
+    <string name="text_operation">文本处理</string>
+    <string name="operation_log">操作日志</string>
+    <string name="not_supported">不支持跨行搜索</string>
+    <string name="not_found">未搜索到内容</string>
+    <string name="all-log">全部日志</string>
+    <string name="mark_log">标记日志</string>
+    <string name="copied_to_clipboard">已将标记日志复制到剪切板</string>
 </resources>

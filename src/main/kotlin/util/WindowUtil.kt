@@ -26,7 +26,6 @@ fun getWindowState(): WindowState {
     val screenSize = Toolkit.getDefaultToolkit().screenSize
     val screenHeight = screenSize.height - 300
     val screenWidth = screenSize.width - 500
-    println("Width: $screenWidth ; Height: $screenHeight")
     return rememberWindowState(
         position = WindowPosition(Alignment.Center),
         size = DpSize(screenWidth.dp, screenHeight.dp)

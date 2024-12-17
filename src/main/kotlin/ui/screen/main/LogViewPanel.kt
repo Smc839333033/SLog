@@ -29,7 +29,6 @@ import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,9 +36,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smc.slog.resources.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import ui.screen.component.*
 import ui.state.LogInfo
 import ui.state.LogPanelState
@@ -68,7 +71,9 @@ fun LogViewPanel(pageInfo: PageInfo) {
             val markLogLogListState = rememberLazyListState()
 
             TextOperationBar(textOperationBarState, onOperationTextRepeat = {
-                toastState.showToast("该操作字符已存在")
+                scope.launch {
+                    toastState.showToast(getString(Res.string.already_exists))
+                }
             }, onOperationTextsChange = {
                 val firstVisibleItemLineNumber =
                     logPanelState.getFirstVisibleItemLineNumber(topFilterLogListState.firstVisibleItemIndex)
@@ -104,10 +109,16 @@ fun LogViewPanel(pageInfo: PageInfo) {
                             if (markListIndex != -1) {
                                 markLogLogListState.scrollToItem(markListIndex)
                             }
+                            toastState.showToast(getString(Res.string.jump_completed), 1000)
                         }
-                        toastState.showToast("已完成跳转", 1000)
                     }, addOperationText = {
-                        textOperationBarState.addOperationText(it)
+                        if (!textOperationBarState.contains(it)) {
+                            textOperationBarState.addOperationText(it)
+                        } else {
+                            scope.launch {
+                                toastState.showToast(getString(Res.string.already_exists))
+                            }
+                        }
                     })
                 },
                 bottomLeftPanel = {
@@ -117,12 +128,11 @@ fun LogViewPanel(pageInfo: PageInfo) {
                         onJump = {
                             scope.launch {
                                 val filterListIndex = logPanelState.findJumpIndex(it, logPanelState.filterList)
-                                println("filterListIndex:$filterListIndex")
                                 if (filterListIndex != -1) {
                                     topFilterLogListState.scrollToItem(filterListIndex)
                                 }
+                                toastState.showToast(getString(Res.string.jump_completed), 1000)
                             }
-                            toastState.showToast("已完成跳转", 1000)
                         },
                         addOperationText = {
                             textOperationBarState.addOperationText(it)
@@ -136,12 +146,11 @@ fun LogViewPanel(pageInfo: PageInfo) {
                         onJump = {
                             scope.launch {
                                 val filterListIndex = logPanelState.findJumpIndex(it, logPanelState.filterList)
-                                println("filterListIndex:$filterListIndex")
                                 if (filterListIndex != -1) {
                                     topFilterLogListState.scrollToItem(filterListIndex)
                                 }
+                                toastState.showToast(getString(Res.string.jump_completed), 1000)
                             }
-                            toastState.showToast("已完成跳转", 1000)
                         },
                         onToast = {
                             toastState.showToast(it)
@@ -202,7 +211,7 @@ fun TopFilterLogContentPanel(
             modifier = Modifier.height(25.dp).fillMaxWidth().background(titleBgColor),
             contentAlignment = Alignment.Center
         ) {
-            Text("操作日志", color = Color.White, fontSize = 11.sp)
+            Text(stringResource(Res.string.operation_log), color = Color.White, fontSize = 11.sp)
             Row(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -215,7 +224,7 @@ fun TopFilterLogContentPanel(
                     fontSize = 11.sp
                 )
                 Image(
-                    painter = painterResource("image/search.svg"),
+                    painter = painterResource(Res.drawable.search),
                     null,
                     modifier = Modifier.width(30.dp).clickable {
                         isShowSearchBar = !isShowSearchBar
@@ -227,7 +236,9 @@ fun TopFilterLogContentPanel(
                 logPanelState,
                 onSearch = {
                     if (it.contains("\n")) {
-                        onToast("不支持跨行搜索")
+                        scope.launch {
+                            onToast(getString(Res.string.not_supported))
+                        }
                         return@SearchBar
                     }
                     scope.launch(Dispatchers.IO) {
@@ -238,7 +249,7 @@ fun TopFilterLogContentPanel(
                                     val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
                                     if (visibleItems.size > 2) {
                                         if (visibleItems.subList(1, visibleItems.size - 1)
-                                                .none { it.key == scrollToIndex }
+                                                .none { item -> item.key == scrollToIndex }
                                         ) {
                                             val visibleHeight = lazyListState.layoutInfo.viewportSize.height
                                             lazyListState.scrollToItem(
@@ -249,7 +260,9 @@ fun TopFilterLogContentPanel(
                                     }
                                 }
                             } else {
-                                onToast("未搜索到内容")
+                                scope.launch {
+                                    onToast(getString(Res.string.not_found))
+                                }
                             }
                         }
                     }
@@ -296,7 +309,9 @@ fun TopFilterLogContentPanel(
                         SP_Placeholders
                     ))
                 ) {
-                    onToast("不支持跨行搜索")
+                    scope.launch {
+                        onToast(getString(Res.string.not_supported))
+                    }
                     return@LogTextMenuProvider
                 }
                 isShowSearchBar = true
@@ -308,7 +323,7 @@ fun TopFilterLogContentPanel(
                                 val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
                                 if (visibleItems.size > 2) {
                                     if (visibleItems.subList(1, visibleItems.size - 1)
-                                            .none { it.key == scrollToIndex }
+                                            .none { item -> item.key == scrollToIndex }
                                     ) {
                                         val visibleHeight = lazyListState.layoutInfo.viewportSize.height
                                         lazyListState.scrollToItem(
@@ -319,7 +334,9 @@ fun TopFilterLogContentPanel(
                                 }
                             }
                         } else {
-                            onToast("未搜索到内容")
+                            scope.launch {
+                                onToast(getString(Res.string.not_found))
+                            }
                         }
                     }
                 }
@@ -368,7 +385,7 @@ fun WholeLogContentPanel(
             modifier = Modifier.height(25.dp).fillMaxWidth().background(titleBgColor),
             contentAlignment = Alignment.Center
         ) {
-            Text("全部日志", color = Color.White, fontSize = 11.sp)
+            Text(stringResource(Res.string.all_log), color = Color.White, fontSize = 11.sp)
             Row(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -381,7 +398,7 @@ fun WholeLogContentPanel(
                     fontSize = 11.sp
                 )
                 Image(
-                    painter = painterResource("image/minus.svg"),
+                    painter = painterResource(Res.drawable.minus),
                     null,
                     modifier = Modifier.width(30.dp).clickable {
                         dismiss()
@@ -432,7 +449,7 @@ fun MarkLogContentPanel(
             modifier = Modifier.height(25.dp).fillMaxWidth().background(titleBgColor),
             contentAlignment = Alignment.Center
         ) {
-            Text("标记日志", color = Color.White, fontSize = 11.sp)
+            Text(stringResource(Res.string.mark_log), color = Color.White, fontSize = 11.sp)
             Row(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -445,9 +462,10 @@ fun MarkLogContentPanel(
                     fontSize = 11.sp
                 )
                 Row {
+                    val scope = rememberCoroutineScope()
                     val clipboardManager: ClipboardManager = LocalClipboardManager.current
                     Image(
-                        painter = painterResource("image/clipboard.svg"),
+                        painter = painterResource(Res.drawable.clipboard),
                         null,
                         modifier = Modifier.width(30.dp).clickable {
                             if (logPanelState.markList.isNotEmpty()) {
@@ -463,11 +481,13 @@ fun MarkLogContentPanel(
                                     )
                                 }
                                 clipboardManager.setText(AnnotatedString(stringBuffer.toString()))
-                                onToast("已将标记日志复制到剪切板")
+                                scope.launch {
+                                    onToast(getString(Res.string.copied_to_clipboard))
+                                }
                             }
                         })
                     Image(
-                        painter = painterResource("image/delete-one.svg"),
+                        painter = painterResource(Res.drawable.delete_one),
                         null,
                         modifier = Modifier.width(30.dp).clickable {
                             logPanelState.markList.forEach {
@@ -476,7 +496,7 @@ fun MarkLogContentPanel(
                             logPanelState.markList.clear()
                         })
                     Image(
-                        painter = painterResource("image/minus.svg"),
+                        painter = painterResource(Res.drawable.minus),
                         null,
                         modifier = Modifier.width(30.dp).clickable {
                             dismiss()
@@ -534,7 +554,7 @@ fun SearchBar(
             focusRequester.requestFocus()
         }
 
-        Image(painterResource("image/search.svg"), null)
+        Image(painterResource(Res.drawable.search), null)
 
         Spacer(modifier = Modifier.width(10.dp))
 
@@ -581,7 +601,7 @@ fun SearchBar(
         Spacer(modifier = Modifier.width(20.dp))
 
         Image(
-            painterResource("image/arrow-left.svg"),
+            painterResource(Res.drawable.arrow_left),
             null,
             modifier = Modifier.scale(0.8f).rotate(90f).clickable {
                 findPre()
@@ -590,7 +610,7 @@ fun SearchBar(
         Spacer(modifier = Modifier.width(10.dp))
 
         Image(
-            painterResource("image/arrow-right.svg"),
+            painterResource(Res.drawable.arrow_right),
             null,
             modifier = Modifier.scale(0.8f).rotate(90f).clickable {
                 findNext()
@@ -598,7 +618,7 @@ fun SearchBar(
 
         Spacer(modifier = Modifier.fillMaxWidth().weight(1f))
 
-        Image(painterResource("image/close-small.svg"), null, modifier = Modifier.clickable {
+        Image(painterResource(Res.drawable.close_small), null, modifier = Modifier.clickable {
             close()
         })
     }
@@ -626,7 +646,7 @@ fun ToolBar(
             horizontalArrangement = Arrangement.Center
         ) {
             LogText(
-                text = "全部日志",
+                text = stringResource(Res.string.all_log),
                 color = Color.White,
                 fontSize = 10.sp,
                 textAlign = TextAlign.Center,
@@ -644,7 +664,7 @@ fun ToolBar(
             horizontalArrangement = Arrangement.Center
         ) {
             LogText(
-                text = "标记日志",
+                text = stringResource(Res.string.mark_log),
                 color = Color.White,
                 fontSize = 10.sp,
                 textAlign = TextAlign.Center,
@@ -654,7 +674,7 @@ fun ToolBar(
         }
         Spacer(modifier = Modifier.fillMaxWidth().weight(1f))
         Image(
-            painter = painterResource("image/help.svg"),
+            painter = painterResource(Res.drawable.help),
             null,
             modifier = Modifier.width(30.dp).clickable {
                 helpBarClick()

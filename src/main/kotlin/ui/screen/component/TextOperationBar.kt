@@ -5,8 +5,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.LocalTextContextMenu
-import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,7 +21,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
@@ -31,7 +28,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smc.slog.resources.*
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import ui.theme.DefaultFilterTextColorList
 import ui.theme.operationTextBarBgColor
 import util.hasChineseChar
@@ -63,24 +65,20 @@ data class OperationText(
     override fun hashCode(): Int {
         return text.hashCode()
     }
-
-    override fun toString(): String {
-        return "OperationText(text='$text', operationType=$operationType, isSelect=${isSelect.value}, textColor=${textColor.value})"
-    }
 }
 
 data class DropMenuItem(
     val operationType: OperationType,
-    val iconPath: String,
-    val text: String
+    val drawableResource: DrawableResource,
+    val stringResource: StringResource
 )
 
 val DropMenuItemList = listOf(
-    DropMenuItem(OperationType.FILTER, "image/preview-open.svg", "字符筛选"),
-    DropMenuItem(OperationType.SHIELD, "image/preview-close.svg", "字符屏蔽"),
-    DropMenuItem(OperationType.HIGHLIGHT, "image/dome-light.svg", "字符高亮"),
-    DropMenuItem(OperationType.REGEXP, "image/file-conversion-one.svg", "正则筛选"),
-    DropMenuItem(OperationType.SHIELD_REGEXP, "image/file-failed-one.svg", "正则屏蔽")
+    DropMenuItem(OperationType.FILTER, Res.drawable.preview_open, Res.string.text_filter),
+    DropMenuItem(OperationType.SHIELD, Res.drawable.preview_close, Res.string.text_shield),
+    DropMenuItem(OperationType.HIGHLIGHT, Res.drawable.dome_light, Res.string.text_highlight),
+    DropMenuItem(OperationType.REGEXP, Res.drawable.file_conversion_one, Res.string.rex_filter),
+    DropMenuItem(OperationType.SHIELD_REGEXP, Res.drawable.file_failed_one, Res.string.rex_shield)
 )
 
 class TextOperationBarState {
@@ -170,7 +168,8 @@ fun TextOperationBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(textOperationBarState.operationTextsSize()) { index ->
-                    OperationTextItem(textOperationBarState.getOperationTextByIndex(index),
+                    OperationTextItem(
+                        textOperationBarState.getOperationTextByIndex(index),
                         onSelect = {
                             textOperationBarState.changeSelectState(index, it)
                         }, deleteItem = {
@@ -209,7 +208,7 @@ fun InputOperationTextField(operationTextReceiver: (OperationText) -> Unit) {
         var operationType by remember { mutableStateOf(OperationType.FILTER) }
 
         Image(
-            painter = if (!isAllowInput) painterResource("image/plus.svg") else painterResource("image/left.svg"),
+            painter = if (!isAllowInput) painterResource(Res.drawable.plus) else painterResource(Res.drawable.left),
             null,
             modifier = Modifier.align(Alignment.CenterVertically).clickable {
                 isAllowInput = !isAllowInput
@@ -219,7 +218,7 @@ fun InputOperationTextField(operationTextReceiver: (OperationText) -> Unit) {
         Spacer(Modifier.width(5.dp))
         AnimatedVisibility(visible = !isAllowInput) {
             LogText(
-                "文本处理",
+                stringResource(Res.string.text_operation),
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 fontSize = 10.sp,
@@ -247,9 +246,9 @@ fun InputOperationTextField(operationTextReceiver: (OperationText) -> Unit) {
                             operationType = it.operationType
                             showMenu = false
                         }) {
-                            Image(painter = painterResource(it.iconPath), contentDescription = "")
+                            Image(painter = painterResource(it.drawableResource), contentDescription = "")
                             LogText(
-                                text = it.text,
+                                text = stringResource(it.stringResource),
                                 fontSize = 10.sp,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.padding(start = 10.dp),
@@ -273,7 +272,7 @@ fun InputOperationTextField(operationTextReceiver: (OperationText) -> Unit) {
                     Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         modifier = Modifier.widthIn(10.dp, 150.dp).padding(bottom = 3.5.dp),
-                        text = getTextByOperationType(operationType),
+                        text = stringResource(getTextByOperationType(operationType)),
                         color = Color.White,
                         fontSize = 10.sp,
                         softWrap = false,
@@ -366,7 +365,7 @@ fun OperationTextItem(operationText: OperationText, onSelect: (Boolean) -> Unit,
         }
         Spacer(Modifier.width(5.dp))
         Image(
-            painter = painterResource("image/delete-one.svg"),
+            painter = painterResource(Res.drawable.delete_one),
             null,
             modifier = Modifier.scale(0.8f).clickable {
                 deleteItem()
@@ -376,48 +375,47 @@ fun OperationTextItem(operationText: OperationText, onSelect: (Boolean) -> Unit,
 }
 
 
-
 private fun getImagePathByOperationType(operationType: OperationType) = when (operationType) {
     OperationType.FILTER -> {
-        "image/preview-open.svg"
+        Res.drawable.preview_open
     }
 
     OperationType.SHIELD -> {
-        "image/preview-close.svg"
+        Res.drawable.preview_close
     }
 
     OperationType.HIGHLIGHT -> {
-        "image/dome-light.svg"
+        Res.drawable.dome_light
     }
 
     OperationType.REGEXP -> {
-        "image/file-conversion-one.svg"
+        Res.drawable.file_conversion_one
     }
 
     else -> {
-        "image/file-failed-one.svg"
+        Res.drawable.file_failed_one
     }
 }
 
 private fun getTextByOperationType(operationType: OperationType) = when (operationType) {
     OperationType.FILTER -> {
-        "字符筛选"
+        Res.string.text_filter
     }
 
     OperationType.SHIELD -> {
-        "字符屏蔽"
+        Res.string.text_shield
     }
 
     OperationType.HIGHLIGHT -> {
-        "字符高亮"
+        Res.string.text_highlight
     }
 
     OperationType.REGEXP -> {
-        "正则筛选"
+        Res.string.rex_filter
     }
 
     else -> {
-        "正则屏蔽"
+        Res.string.rex_shield
     }
 }
 

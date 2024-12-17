@@ -16,11 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smc.slog.resources.*
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun DialogPanel(
@@ -52,14 +54,14 @@ fun PasteTipDialog(disMiss: () -> Unit, submit: () -> Unit) {
         ) {
 
             Image(
-                painterResource("image/icon.png"),
+                painterResource(Res.drawable.icon),
                 null,
                 modifier = Modifier.size(60.dp)
             )
 
             Spacer(Modifier.height(30.dp))
             Text(
-                text = "需要打开粘贴的文本内容吗？",
+                text = stringResource(Res.string.ask_open_text),
                 color = Color.Black,
                 fontSize = 12.sp,
                 softWrap = true,
@@ -68,7 +70,7 @@ fun PasteTipDialog(disMiss: () -> Unit, submit: () -> Unit) {
             )
             Spacer(Modifier.height(5.dp))
             Text(
-                text = "将新开Tab页打开",
+                text = stringResource(Res.string.open_tab),
                 color = Color.Black,
                 fontSize = 10.sp,
                 softWrap = true,
@@ -86,7 +88,7 @@ fun PasteTipDialog(disMiss: () -> Unit, submit: () -> Unit) {
                     shape = RoundedCornerShape(6.dp)
                 ) {
                     Text(
-                        text = "取消",
+                        text = stringResource(Res.string.cancel),
                         color = Color.White,
                         fontSize = 10.sp,
                         softWrap = true,
@@ -105,7 +107,7 @@ fun PasteTipDialog(disMiss: () -> Unit, submit: () -> Unit) {
                     shape = RoundedCornerShape(6.dp)
                 ) {
                     Text(
-                        text = "确定",
+                        text = stringResource(Res.string.submit),
                         color = Color.White,
                         fontSize = 10.sp,
                         softWrap = true,
