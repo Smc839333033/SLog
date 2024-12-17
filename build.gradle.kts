@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 group = "com.smc.slog"
@@ -19,13 +20,18 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
+    implementation(compose.components.resources)
     implementation(fileTree(mapOf("dir" to "src/lib", "include" to listOf("*.jar"))))
 }
 
 compose.resources {
+    customDirectory(
+        sourceSetName = "commonMain",
+        directoryProvider = provider { layout.projectDirectory.dir("src/main/resources/commonMain/composeResources") }
+    )
     publicResClass = true
-    packageOfResClass = "com.smc.library.resources"
-    generateResClass = auto
+    packageOfResClass = "com.smc.slog.resources"
+    generateResClass = always
 }
 
 compose.desktop {

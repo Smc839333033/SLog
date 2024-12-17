@@ -3,6 +3,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.smc.slog.resources.Res
+import com.smc.slog.resources.aiming
+import com.smc.slog.resources.app_name
+import org.jetbrains.compose.resources.stringResource
 import util.getWindowState
 import ui.screen.main.MainScreen
 
