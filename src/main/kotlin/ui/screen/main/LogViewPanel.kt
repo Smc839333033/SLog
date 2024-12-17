@@ -302,7 +302,8 @@ fun TopFilterLogContentPanel(
             }, addOperationText = addOperationText) {
                 LogSelectionContainer {
                     LazyColumn(modifier = Modifier.fillMaxSize().background(logPanelBgColor), state = lazyListState) {
-                        items(logPanelState.filterList.size, key = { logPanelState.filterList[it].lineNumber }) {
+                        items(logPanelState.filterList.size, key = { logPanelState.filterList[it].lineNumber }
+                        ) {
                             TextItem(
                                 logPanelState,
                                 logPanelState.filterList[it],
@@ -691,7 +692,7 @@ fun TextItem(
         LogText(
             text = annotatedString,
             fontSize = 11.sp,
-            color = Color.LightGray,
+            color = Color.LightGray
         )
     }
 }

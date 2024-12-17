@@ -6,8 +6,8 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-group = "com.smc.LogReader"
-version = "1.0-SNAPSHOT"
+group = "com.smc.slog"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
@@ -18,22 +18,25 @@ repositories {
 
 
 dependencies {
-    // Note, if you develop a library, you should use compose.desktop.common.
-    // compose.desktop.currentOs should be used in launcher-sourceSet
-    // (in a separate module for demo project and in testMain).
-    // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
-//    implementation(fileTree(mapOf("dir" to "src/main/resources", "include" to listOf("*.jar"))))
+    implementation(fileTree(mapOf("dir" to "src/lib", "include" to listOf("*.jar"))))
 }
 
 compose.desktop {
+
+
     application {
         mainClass = "MainKt"
+
+        buildTypes.release.proguard {
+            obfuscate.set(true)
+            configurationFiles.from(project.file("proguard-rules.pro"))
+        }
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "SLog"
-            packageVersion = "1.0.0"
+            packageVersion = "1.2.0"
 
             windows {
                 iconFile.set(project.file("src/main/resources/image/icon.ico"))
@@ -42,10 +45,10 @@ compose.desktop {
             }
 
             macOS {
-                bundleID = "com.smc.slog.filter"
+                bundleID = "com.smc.slog"
                 iconFile.set(project.file("src/main/resources/image/icon.icns"))
                 infoPlist {
-//                    extraKeysRawXml = macExtraPlistKeys
+                    extraKeysRawXml = macExtraPlistKeys
                 }
             }
 
@@ -53,15 +56,16 @@ compose.desktop {
                 iconFile.set(project.file("src/main/resources/image/icon.png"))
             }
         }
-
-
     }
 }
+
+
+
+
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     languageVersion = "1.9"
 }
-
 
 val macExtraPlistKeys: String
     get() = """
