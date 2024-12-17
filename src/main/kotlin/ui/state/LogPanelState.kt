@@ -40,7 +40,7 @@ data class LogPanelState(
     val searchResultList: SnapshotStateList<SearchTextInfo> = mutableStateListOf(),
     var searchNowIndex: MutableState<Int> = mutableStateOf(-1)
 ) {
-    init {
+    fun initData() {
         scope.launch(Dispatchers.IO) {
             when (pageInfo.pageType) {
                 PageType.File -> {
@@ -73,8 +73,8 @@ data class LogPanelState(
                     )
                 }
             }
-            wholeList.addAll(originalList)
             filterList.addAll(originalList)
+            wholeList.addAll(originalList)
             isParsing.value = false
         }
     }
@@ -94,8 +94,8 @@ data class LogPanelState(
                     )
                 }
             }
-            wholeList.addAll(originalList)
             filterList.addAll(originalList)
+            wholeList.addAll(originalList)
             isParsing.value = false
         }
     }

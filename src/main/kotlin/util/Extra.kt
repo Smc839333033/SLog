@@ -53,3 +53,13 @@ fun getNumByChar(str: String): String {
     val m: Matcher = p.matcher(str)
     return m.replaceAll("").trim()
 }
+
+fun String.countSubstringOccurrences(substring: String): Int {
+    val pattern: Pattern = Pattern.compile(substring)
+    val matcher: Matcher = pattern.matcher(this)
+    var count = 0
+    while (matcher.find()) {
+        count++
+    }
+    return count
+}

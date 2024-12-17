@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.install4j.api.launcher.StartupNotification
 import kotlinx.coroutines.launch
 import ui.screen.component.DialogPanel
 import ui.screen.component.TabBar
@@ -23,6 +24,7 @@ import ui.state.MainScreenState
 import ui.state.rememberMainScreenState
 import ui.theme.logPanelBgColor
 import util.AppEvent
+import util.AppWindow
 import util.UserIntent
 import java.awt.datatransfer.DataFlavor
 import java.io.File
@@ -33,6 +35,22 @@ fun MainScreen(mainScreenState: MainScreenState = rememberMainScreenState()) {
     val pagerState = rememberPagerState { mainScreenState.getPage().size }
     val clipboardManager = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        StartupNotification.registerStartupListener { parameters ->
+            AppWindow.window.requestFocus()
+            AppWindow.window.toFront()
+            if (File(parameters).exists()) {
+                mainScreenState.addPageByDragFile(File(parameters)) {
+                    if (it) {
+                        scope.launch {
+                            pagerState.scrollToPage(pagerState.pageCount)
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     val dragAndDropTarget = remember {
         object : DragAndDropTarget {

@@ -48,6 +48,7 @@ import ui.state.rememberLogPanelState
 import ui.theme.logPanelBgColor
 import ui.theme.markBgColor
 import ui.theme.titleBgColor
+import util.countSubstringOccurrences
 import java.lang.StringBuilder
 import kotlin.math.max
 
@@ -167,6 +168,10 @@ fun LogViewPanel(pageInfo: PageInfo) {
         Toast(toastState)
         HelpDialog(showHelpDialogStata)
     }
+
+    LaunchedEffect(Unit) {
+        logPanelState.initData()
+    }
 }
 
 
@@ -199,14 +204,9 @@ fun TopFilterLogContentPanel(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val change by remember { logPanelState.updateVersion }
-                var count by remember { mutableStateOf(0) }
-                LaunchedEffect(change) {
-                    count = logPanelState.filterList.size
-                }
                 Text(
                     modifier = Modifier.offset(y = (-3).dp),
-                    text = "$count",
+                    text = "${logPanelState.filterList.size}",
                     color = Color.LightGray,
                     fontSize = 11.sp
                 )
@@ -222,6 +222,10 @@ fun TopFilterLogContentPanel(
             SearchBar(
                 logPanelState,
                 onSearch = {
+                    if (it.contains("\n")) {
+                        onToast("不支持跨行搜索")
+                        return@SearchBar
+                    }
                     logPanelState.search(it) { hasResult ->
                         if (hasResult) {
                             scope.launch {
@@ -282,6 +286,10 @@ fun TopFilterLogContentPanel(
         }
         Box {
             LogTextMenuProvider(isShowSearch = true, search = {
+                if (it.contains(SP_Placeholders) && !(it.countSubstringOccurrences(SP_Placeholders) == 1 && it.endsWith(SP_Placeholders))) {
+                    onToast("不支持跨行搜索")
+                    return@LogTextMenuProvider
+                }
                 isShowSearchBar = true
                 logPanelState.search(it) { hasResult ->
                     if (hasResult) {
@@ -307,7 +315,8 @@ fun TopFilterLogContentPanel(
             }, addOperationText = addOperationText) {
                 LogSelectionContainer {
                     LazyColumn(modifier = Modifier.fillMaxSize().background(logPanelBgColor), state = lazyListState) {
-                        items(logPanelState.filterList.size, key = { logPanelState.filterList[it].lineNumber }) {
+                        items(logPanelState.filterList.size, key = { logPanelState.filterList[it].lineNumber }
+                        ) {
                             TextItem(
                                 logPanelState,
                                 logPanelState.filterList[it],
@@ -522,7 +531,7 @@ fun SearchBar(
 
         CustomTextMenuProvider {
             BasicTextField(
-                modifier = Modifier.width(300.dp).height(24.dp).background(Color(69, 73, 74))
+                modifier = Modifier.width(300.dp).height(25.dp).background(Color(69, 73, 74))
                     .padding(top = 5.dp).fillMaxHeight().onKeyEvent {
                         if (it.utf16CodePoint == 10 && it.type == KeyEventType.KeyUp && searchText.isNotEmpty()) {
                             onSearch(searchText)
@@ -701,7 +710,7 @@ fun TextItem(
         LogText(
             text = annotatedString,
             fontSize = 11.sp,
-            color = Color.LightGray,
+            color = Color.LightGray
         )
     }
 }

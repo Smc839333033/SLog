@@ -10,7 +10,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomTextMenuProvider(content: @Composable () -> Unit) {
