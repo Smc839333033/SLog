@@ -22,6 +22,12 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "src/lib", "include" to listOf("*.jar"))))
 }
 
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.smc.library.resources"
+    generateResClass = auto
+}
+
 compose.desktop {
 
 

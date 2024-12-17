@@ -6,10 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import ui.screen.component.OperationText
 import ui.screen.component.OperationType
 import ui.screen.component.SP_Placeholders
@@ -24,8 +21,6 @@ import kotlin.math.min
 
 data class LogPanelState(
     val pageInfo: PageInfo,
-    val scope: CoroutineScope,
-
     val updateVersion: MutableState<Int> = mutableStateOf(0),
     val isParsing: MutableState<Boolean> = mutableStateOf(false),
 
@@ -41,15 +36,13 @@ data class LogPanelState(
     var searchNowIndex: MutableState<Int> = mutableStateOf(-1)
 ) {
     fun initData() {
-        scope.launch(Dispatchers.IO) {
-            when (pageInfo.pageType) {
-                PageType.File -> {
-                    readFile()
-                }
+        when (pageInfo.pageType) {
+            PageType.File -> {
+                readFile()
+            }
 
-                PageType.PasteText -> {
-                    readPasteText()
-                }
+            PageType.PasteText -> {
+                readPasteText()
             }
         }
     }
@@ -103,32 +96,30 @@ data class LogPanelState(
     fun search(text: String, result: (Boolean) -> Unit) {
         if (filterList.isEmpty()) return
         searchText.value = text
-        scope.launch(Dispatchers.IO) {
-            val resultList = ArrayList<SearchTextInfo>()
-            repeat(filterList.size) {
-                val logInfo = filterList[it]
-                for (matchResult in Regex.fromLiteral(text).findAll(logInfo.text)) {
-                    resultList.add(
-                        SearchTextInfo(
-                            lineNumber = logInfo.lineNumber,
-                            listIndexNumber = it,
-                            index = resultList.size,
-                            matchResult.range.first,
-                            matchResult.range.last + 1,
-                            logInfo
-                        )
+        val resultList = ArrayList<SearchTextInfo>()
+        repeat(filterList.size) {
+            val logInfo = filterList[it]
+            for (matchResult in Regex.fromLiteral(text).findAll(logInfo.text)) {
+                resultList.add(
+                    SearchTextInfo(
+                        lineNumber = logInfo.lineNumber,
+                        listIndexNumber = it,
+                        index = resultList.size,
+                        matchResult.range.first,
+                        matchResult.range.last + 1,
+                        logInfo
                     )
-                }
+                )
             }
-            if (resultList.isNotEmpty()) {
-                searchResultList.clear()
-                searchResultList.addAll(resultList)
-                searchNowIndex.value = 0
-                updateVersion.value++
-                result(true)
-            } else {
-                result(false)
-            }
+        }
+        if (resultList.isNotEmpty()) {
+            searchResultList.clear()
+            searchResultList.addAll(resultList)
+            searchNowIndex.value = 0
+            updateVersion.value++
+            result(true)
+        } else {
+            result(false)
         }
     }
 
@@ -191,14 +182,12 @@ data class LogPanelState(
         return -1
     }
 
-    fun changeOperationTextList(list: ArrayList<OperationText>, hasChange: (Boolean) -> Unit) {
+    suspend fun changeOperationTextList(list: ArrayList<OperationText>, hasChange: (Boolean) -> Unit) {
         if (!operationTextList.isSameList(list)) {
             this.operationTextList = list
-            scope.launch(Dispatchers.IO) {
-                delay(if (isParsing.value) 500 else 0)
-                isShowSearchBar.value = false
-                parseOperation(hasChange)
-            }
+            delay(if (isParsing.value) 500 else 0)
+            isShowSearchBar.value = false
+            parseOperation(hasChange)
         }
     }
 
@@ -270,6 +259,7 @@ data class LogPanelState(
                         it.endIndex
                     )
                 } else {
+
                     addStyle(
                         SpanStyle(color = Color(169, 183, 198), background = Color(50, 89, 61)),
                         it.firstIndex,
@@ -360,6 +350,6 @@ data class SearchTextInfo(
 }
 
 @Composable
-fun rememberLogPanelState(pageInfo: PageInfo, scope: CoroutineScope) = remember {
-    LogPanelState(pageInfo, scope)
+fun rememberLogPanelState(pageInfo: PageInfo) = remember {
+    LogPanelState(pageInfo)
 }

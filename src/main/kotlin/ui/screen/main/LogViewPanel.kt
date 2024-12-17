@@ -58,7 +58,7 @@ fun LogViewPanel(pageInfo: PageInfo) {
     val showHelpDialogStata = rememberShowDialogStata()
     val scope = rememberCoroutineScope()
     val textOperationBarState = rememberTextOperationBarState()
-    val logPanelState = rememberLogPanelState(pageInfo, scope)
+    val logPanelState = rememberLogPanelState(pageInfo)
     val toastState = rememberToastState()
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -72,14 +72,16 @@ fun LogViewPanel(pageInfo: PageInfo) {
             }, onOperationTextsChange = {
                 val firstVisibleItemLineNumber =
                     logPanelState.getFirstVisibleItemLineNumber(topFilterLogListState.firstVisibleItemIndex)
-                logPanelState.changeOperationTextList(it as ArrayList<OperationText>) { hasChange ->
-                    if (hasChange) {
-                        scope.launch {
-                            topFilterLogListState.scrollToItem(
-                                logPanelState.getIndexByLineNumber(
-                                    firstVisibleItemLineNumber
+                scope.launch(Dispatchers.IO) {
+                    logPanelState.changeOperationTextList(it as ArrayList<OperationText>) { hasChange ->
+                        if (hasChange) {
+                            scope.launch {
+                                topFilterLogListState.scrollToItem(
+                                    logPanelState.getIndexByLineNumber(
+                                        firstVisibleItemLineNumber
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }
@@ -170,7 +172,9 @@ fun LogViewPanel(pageInfo: PageInfo) {
     }
 
     LaunchedEffect(Unit) {
-        logPanelState.initData()
+        launch(Dispatchers.IO) {
+            logPanelState.initData()
+        }
     }
 }
 
@@ -226,25 +230,27 @@ fun TopFilterLogContentPanel(
                         onToast("不支持跨行搜索")
                         return@SearchBar
                     }
-                    logPanelState.search(it) { hasResult ->
-                        if (hasResult) {
-                            scope.launch {
-                                val scrollToIndex = logPanelState.getSearchJumpIndex()
-                                val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
-                                if (visibleItems.size > 2) {
-                                    if (visibleItems.subList(1, visibleItems.size - 1)
-                                            .none { it.key == scrollToIndex }
-                                    ) {
-                                        val visibleHeight = lazyListState.layoutInfo.viewportSize.height
-                                        lazyListState.scrollToItem(
-                                            logPanelState.getSearchJumpIndex(),
-                                            -max(0, visibleHeight / 2)
-                                        )
+                    scope.launch(Dispatchers.IO) {
+                        logPanelState.search(it) { hasResult ->
+                            if (hasResult) {
+                                scope.launch {
+                                    val scrollToIndex = logPanelState.getSearchJumpIndex()
+                                    val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+                                    if (visibleItems.size > 2) {
+                                        if (visibleItems.subList(1, visibleItems.size - 1)
+                                                .none { it.key == scrollToIndex }
+                                        ) {
+                                            val visibleHeight = lazyListState.layoutInfo.viewportSize.height
+                                            lazyListState.scrollToItem(
+                                                logPanelState.getSearchJumpIndex(),
+                                                -max(0, visibleHeight / 2)
+                                            )
+                                        }
                                     }
                                 }
+                            } else {
+                                onToast("未搜索到内容")
                             }
-                        } else {
-                            onToast("未搜索到内容")
                         }
                     }
                 },
@@ -286,30 +292,35 @@ fun TopFilterLogContentPanel(
         }
         Box {
             LogTextMenuProvider(isShowSearch = true, search = {
-                if (it.contains(SP_Placeholders) && !(it.countSubstringOccurrences(SP_Placeholders) == 1 && it.endsWith(SP_Placeholders))) {
+                if (it.contains(SP_Placeholders) && !(it.countSubstringOccurrences(SP_Placeholders) == 1 && it.endsWith(
+                        SP_Placeholders
+                    ))
+                ) {
                     onToast("不支持跨行搜索")
                     return@LogTextMenuProvider
                 }
                 isShowSearchBar = true
-                logPanelState.search(it) { hasResult ->
-                    if (hasResult) {
-                        scope.launch {
-                            val scrollToIndex = logPanelState.getSearchJumpIndex()
-                            val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
-                            if (visibleItems.size > 2) {
-                                if (visibleItems.subList(1, visibleItems.size - 1)
-                                        .none { it.key == scrollToIndex }
-                                ) {
-                                    val visibleHeight = lazyListState.layoutInfo.viewportSize.height
-                                    lazyListState.scrollToItem(
-                                        logPanelState.getSearchJumpIndex(),
-                                        -max(0, visibleHeight / 2)
-                                    )
+                scope.launch(Dispatchers.IO) {
+                    logPanelState.search(it) { hasResult ->
+                        if (hasResult) {
+                            scope.launch {
+                                val scrollToIndex = logPanelState.getSearchJumpIndex()
+                                val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+                                if (visibleItems.size > 2) {
+                                    if (visibleItems.subList(1, visibleItems.size - 1)
+                                            .none { it.key == scrollToIndex }
+                                    ) {
+                                        val visibleHeight = lazyListState.layoutInfo.viewportSize.height
+                                        lazyListState.scrollToItem(
+                                            logPanelState.getSearchJumpIndex(),
+                                            -max(0, visibleHeight / 2)
+                                        )
+                                    }
                                 }
                             }
+                        } else {
+                            onToast("未搜索到内容")
                         }
-                    } else {
-                        onToast("未搜索到内容")
                     }
                 }
             }, addOperationText = addOperationText) {
