@@ -63,6 +63,11 @@ fun LogViewPanel(pageInfo: PageInfo) {
     val textOperationBarState = rememberTextOperationBarState()
     val logPanelState = rememberLogPanelState(pageInfo)
     val toastState = rememberToastState()
+    LaunchedEffect(Unit) {
+        launch(Dispatchers.IO) {
+            logPanelState.initData()
+        }
+    }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         Column(modifier = Modifier.fillMaxSize()) {
             val panelState = rememberVerticalDragPanelState()
@@ -70,56 +75,63 @@ fun LogViewPanel(pageInfo: PageInfo) {
             val wholeLogListState = rememberLazyListState()
             val markLogLogListState = rememberLazyListState()
 
-            TextOperationBar(textOperationBarState, onOperationTextRepeat = {
-                scope.launch {
-                    toastState.showToast(getString(Res.string.already_exists))
-                }
-            }, onOperationTextsChange = {
-                val firstVisibleItemLineNumber =
-                    logPanelState.getFirstVisibleItemLineNumber(topFilterLogListState.firstVisibleItemIndex)
-                scope.launch(Dispatchers.IO) {
-                    logPanelState.changeOperationTextList(it as ArrayList<OperationText>) { hasChange ->
-                        if (hasChange) {
-                            scope.launch {
-                                topFilterLogListState.scrollToItem(
-                                    logPanelState.getIndexByLineNumber(
-                                        firstVisibleItemLineNumber
+            TextOperationBar(
+                textOperationBarState,
+                onOperationTextRepeat = {
+                    scope.launch {
+                        toastState.showToast(getString(Res.string.already_exists))
+                    }
+                },
+                onOperationTextsChange = {
+                    val firstVisibleItemLineNumber =
+                        logPanelState.getFirstVisibleItemLineNumber(topFilterLogListState.firstVisibleItemIndex)
+                    scope.launch(Dispatchers.IO) {
+                        logPanelState.changeOperationTextList(it as ArrayList<OperationText>) { hasChange ->
+                            if (hasChange) {
+                                scope.launch {
+                                    topFilterLogListState.scrollToItem(
+                                        logPanelState.getIndexByLineNumber(
+                                            firstVisibleItemLineNumber
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
-                }
-            })
+                })
 
             VerticalDragPanel(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 state = panelState,
                 topPanel = {
-                    TopFilterLogContentPanel(logPanelState, topFilterLogListState, onToast = {
-                        toastState.showToast(it)
-                    }, onJump = {
-                        scope.launch {
-                            val wholeListIndex = logPanelState.findJumpIndex(it, logPanelState.wholeList)
-                            if (wholeListIndex != -1) {
-                                wholeLogListState.scrollToItem(wholeListIndex)
-                            }
-
-                            val markListIndex = logPanelState.findJumpIndex(it, logPanelState.markList)
-                            if (markListIndex != -1) {
-                                markLogLogListState.scrollToItem(markListIndex)
-                            }
-                            toastState.showToast(getString(Res.string.jump_completed), 1000)
-                        }
-                    }, addOperationText = {
-                        if (!textOperationBarState.contains(it)) {
-                            textOperationBarState.addOperationText(it)
-                        } else {
+                    TopFilterLogContentPanel(
+                        logPanelState,
+                        topFilterLogListState,
+                        onToast = {
+                            toastState.showToast(it)
+                        },
+                        onJump = {
                             scope.launch {
-                                toastState.showToast(getString(Res.string.already_exists))
+                                val wholeListIndex = logPanelState.findJumpIndex(it, logPanelState.wholeList)
+                                if (wholeListIndex != -1) {
+                                    wholeLogListState.scrollToItem(wholeListIndex)
+                                }
+                                val markListIndex = logPanelState.findJumpIndex(it, logPanelState.markList)
+                                if (markListIndex != -1) {
+                                    markLogLogListState.scrollToItem(markListIndex)
+                                }
+                                toastState.showToast(getString(Res.string.jump_completed), 1000)
                             }
-                        }
-                    })
+                        },
+                        addOperationText = {
+                            if (!textOperationBarState.contains(it)) {
+                                textOperationBarState.addOperationText(it)
+                            } else {
+                                scope.launch {
+                                    toastState.showToast(getString(Res.string.already_exists))
+                                }
+                            }
+                        })
                 },
                 bottomLeftPanel = {
                     WholeLogContentPanel(
@@ -179,12 +191,6 @@ fun LogViewPanel(pageInfo: PageInfo) {
         Toast(toastState)
         HelpDialog(showHelpDialogStata)
     }
-
-    LaunchedEffect(Unit) {
-        launch(Dispatchers.IO) {
-            logPanelState.initData()
-        }
-    }
 }
 
 
@@ -242,21 +248,19 @@ fun TopFilterLogContentPanel(
                         return@SearchBar
                     }
                     scope.launch(Dispatchers.IO) {
-                        logPanelState.search(it) { hasResult ->
+                        logPanelState.search(it, lazyListState.firstVisibleItemIndex) { hasResult ->
                             if (hasResult) {
                                 scope.launch {
                                     val scrollToIndex = logPanelState.getSearchJumpIndex()
                                     val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
                                     if (visibleItems.size > 2) {
                                         if (visibleItems.subList(1, visibleItems.size - 1)
-                                                .none { item -> item.key == scrollToIndex }
+                                                .none { item -> item.index == scrollToIndex }
                                         ) {
-                                            val visibleHeight = lazyListState.layoutInfo.viewportSize.height
-                                            lazyListState.scrollToItem(
-                                                logPanelState.getSearchJumpIndex(),
-                                                -max(0, visibleHeight / 2)
-                                            )
+                                            lazyListState.scrollToItem(scrollToIndex)
                                         }
+                                    } else {
+                                        lazyListState.scrollToItem(scrollToIndex)
                                     }
                                 }
                             } else {
@@ -273,13 +277,12 @@ fun TopFilterLogContentPanel(
                         val scrollToIndex = logPanelState.getSearchJumpIndex()
                         val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
                         if (visibleItems.size > 2) {
-                            if (visibleItems.subList(1, visibleItems.size).none { it.key == scrollToIndex }) {
+                            if (visibleItems.subList(1, visibleItems.size).none { it.index == scrollToIndex }) {
                                 val visibleHeight = lazyListState.layoutInfo.viewportSize.height
-                                lazyListState.scrollToItem(
-                                    logPanelState.getSearchJumpIndex(),
-                                    -max(0, visibleHeight / 2)
-                                )
+                                lazyListState.scrollToItem(scrollToIndex, -max(0, visibleHeight / 2))
                             }
+                        } else {
+                            lazyListState.scrollToItem(scrollToIndex)
                         }
                     }
                 },
@@ -289,13 +292,11 @@ fun TopFilterLogContentPanel(
                         val scrollToIndex = logPanelState.getSearchJumpIndex()
                         val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
                         if (visibleItems.size > 2) {
-                            if (visibleItems.subList(0, visibleItems.size - 1).none { it.key == scrollToIndex }) {
-                                val visibleHeight = lazyListState.layoutInfo.viewportSize.height
-                                lazyListState.scrollToItem(
-                                    logPanelState.getSearchJumpIndex(),
-                                    -max(0, visibleHeight / 2)
-                                )
+                            if (visibleItems.subList(0, visibleItems.size - 1).none { it.index == scrollToIndex }) {
+                                lazyListState.scrollToItem(scrollToIndex)
                             }
+                        } else {
+                            lazyListState.scrollToItem(scrollToIndex)
                         }
                     }
                 },
@@ -304,53 +305,54 @@ fun TopFilterLogContentPanel(
                 })
         }
         Box {
-            LogTextMenuProvider(isShowSearch = true, search = {
-                if (it.contains(SP_Placeholders) && !(it.countSubstringOccurrences(SP_Placeholders) == 1 && it.endsWith(
-                        SP_Placeholders
-                    ))
-                ) {
-                    scope.launch {
-                        onToast(getString(Res.string.not_supported))
+            LogTextMenuProvider(
+                isShowSearch = true,
+                search = {
+                    if (it.contains(SP_Placeholders) &&
+                        !(it.countSubstringOccurrences(SP_Placeholders) == 1 && it.endsWith(SP_Placeholders))
+                    ) {
+                        scope.launch {
+                            onToast(getString(Res.string.not_supported))
+                        }
+                        return@LogTextMenuProvider
                     }
-                    return@LogTextMenuProvider
-                }
-                isShowSearchBar = true
-                scope.launch(Dispatchers.IO) {
-                    logPanelState.search(it) { hasResult ->
-                        if (hasResult) {
-                            scope.launch {
-                                val scrollToIndex = logPanelState.getSearchJumpIndex()
-                                val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
-                                if (visibleItems.size > 2) {
-                                    if (visibleItems.subList(1, visibleItems.size - 1)
-                                            .none { item -> item.key == scrollToIndex }
-                                    ) {
-                                        val visibleHeight = lazyListState.layoutInfo.viewportSize.height
-                                        lazyListState.scrollToItem(
-                                            logPanelState.getSearchJumpIndex(),
-                                            -max(0, visibleHeight / 2)
-                                        )
+                    isShowSearchBar = true
+                    scope.launch(Dispatchers.IO) {
+                        logPanelState.search(it, lazyListState.firstVisibleItemIndex) { hasResult ->
+                            if (hasResult) {
+                                scope.launch {
+                                    val scrollToIndex = logPanelState.getSearchJumpIndex()
+                                    val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
+                                    if (visibleItems.size > 2) {
+                                        if (visibleItems.subList(1, visibleItems.size - 1)
+                                                .none { item -> item.index == scrollToIndex }
+                                        ) {
+                                            lazyListState.scrollToItem(scrollToIndex)
+                                        }
+                                    } else {
+                                        lazyListState.scrollToItem(scrollToIndex)
                                     }
                                 }
-                            }
-                        } else {
-                            scope.launch {
-                                onToast(getString(Res.string.not_found))
+                            } else {
+                                scope.launch {
+                                    onToast(getString(Res.string.not_found))
+                                }
                             }
                         }
                     }
-                }
-            }, addOperationText = addOperationText) {
+                },
+                addOperationText = addOperationText
+            ) {
                 LogSelectionContainer {
                     LazyColumn(modifier = Modifier.fillMaxSize().background(logPanelBgColor), state = lazyListState) {
-                        items(logPanelState.filterList.size, key = { logPanelState.filterList[it].lineNumber }
-                        ) {
+                        items(logPanelState.filterList.size, key = { logPanelState.filterList[it].lineNumber }) {
                             TextItem(
                                 logPanelState,
                                 logPanelState.filterList[it],
                                 onJump = { onJump(logPanelState.filterList[it]) },
                                 isShowSearch = true
                             )
+                            Spacer(modifier = Modifier.height(2.dp))
                         }
                     }
                 }
@@ -585,7 +587,7 @@ fun SearchBar(
         Text(
             modifier = Modifier.offset(y = 0.dp).widthIn(30.dp, 150.dp),
             color = Color.White,
-            text = "${index + 1}",
+            text = if (logPanelState.searchResultList.size == 0) "0" else "${index + 1}",
             fontSize = 15.sp
         )
 
@@ -651,9 +653,8 @@ fun ToolBar(
                 fontSize = 10.sp,
                 textAlign = TextAlign.Center,
                 softWrap = false,
-                overflow = TextOverflow.Ellipsis,
-
-                )
+                overflow = TextOverflow.Ellipsis
+            )
         }
         Row(
             modifier = Modifier.width(100.dp).fillMaxHeight()

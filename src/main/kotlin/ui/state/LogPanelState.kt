@@ -93,13 +93,19 @@ data class LogPanelState(
         }
     }
 
-    fun search(text: String, result: (Boolean) -> Unit) {
+    fun search(text: String, firstVisibleItemIndex: Int, result: (Boolean) -> Unit) {
         if (filterList.isEmpty()) return
         searchText.value = text
         val resultList = ArrayList<SearchTextInfo>()
+        var flag = true
+        searchNowIndex.value = 0
         repeat(filterList.size) {
             val logInfo = filterList[it]
             for (matchResult in Regex.fromLiteral(text).findAll(logInfo.text)) {
+                if (flag && it >= firstVisibleItemIndex) {
+                    flag = false
+                    searchNowIndex.value = resultList.size
+                }
                 resultList.add(
                     SearchTextInfo(
                         lineNumber = logInfo.lineNumber,
@@ -115,7 +121,6 @@ data class LogPanelState(
         if (resultList.isNotEmpty()) {
             searchResultList.clear()
             searchResultList.addAll(resultList)
-            searchNowIndex.value = 0
             updateVersion.value++
             result(true)
         } else {
@@ -254,14 +259,13 @@ data class LogPanelState(
             }.forEach {
                 if (searchNowIndex.value >= 0 && it == searchResultList[searchNowIndex.value]) {
                     addStyle(
-                        SpanStyle(color = Color.Black, background = Color.Yellow),
+                        SpanStyle(color = Color.White, background = Color.Yellow.copy(alpha = 0.3f)),
                         it.firstIndex,
                         it.endIndex
                     )
                 } else {
-
                     addStyle(
-                        SpanStyle(color = Color(169, 183, 198), background = Color(50, 89, 61)),
+                        SpanStyle(color = Color(169, 183, 198), background = Color(50, 89, 61).copy(alpha = 0.5f)),
                         it.firstIndex,
                         it.endIndex
                     )

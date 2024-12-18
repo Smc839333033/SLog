@@ -2,6 +2,12 @@ package util
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import ui.screen.component.OperationText
 import ui.screen.component.OperationType
 import java.util.regex.Matcher
@@ -55,4 +61,8 @@ fun String.countSubstringOccurrences(substring: String): Int {
         count++
     }
     return count
+}
+
+fun getStringBlocking(stringResource: StringResource) = runBlocking {
+    getString(stringResource)
 }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.ui.graphics.Color
 
 
-
 val DefaultFilterTextColorList = listOf(
     Color.Red,
     Color.Yellow,
@@ -24,5 +23,5 @@ val DefaultFilterTextColorList = listOf(
 val titleBgColor = Color(43, 45, 48)
 val logPanelBgColor = Color(30, 31, 34)
 val operationTextBarBgColor = Color(61, 50, 35)
-val markBgColor = Color(41, 65, 127)
+val markBgColor = Color(33, 66, 131)
 val textSelectionColors = TextSelectionColors(Color(33, 66, 131), Color(33, 66, 131))

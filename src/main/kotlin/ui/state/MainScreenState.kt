@@ -21,7 +21,7 @@ data class PageInfo(
     val filePath: String? = null,
     val pasteText: String? = null,
     val id: String = UUID.randomUUID().toString()
-){
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

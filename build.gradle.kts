@@ -30,8 +30,6 @@ compose.resources {
 }
 
 compose.desktop {
-
-
     application {
         mainClass = "MainKt"
 
@@ -43,7 +41,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "SLog"
-            packageVersion = "1.2.0"
+            packageVersion = version.toString()
 
             windows {
                 iconFile.set(project.file("src/main/resources/image/icon.ico"))

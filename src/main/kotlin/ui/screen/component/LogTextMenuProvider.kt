@@ -8,6 +8,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import com.smc.slog.resources.*
+import util.getStringBlocking
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -21,20 +23,19 @@ fun CustomTextMenuProvider(content: @Composable () -> Unit) {
                 state: ContextMenuState,
                 content: @Composable () -> Unit
             ) {
-                val sp = "      "
                 val items = {
                     listOfNotNull(
                         textManager.cut?.let {
-                            ContextMenuItem("${sp}剪切", it)
+                            ContextMenuItem(getStringBlocking(Res.string.cut), it)
                         },
                         textManager.copy?.let {
-                            ContextMenuItem("${sp}复制", it)
+                            ContextMenuItem(getStringBlocking(Res.string.copy), it)
                         },
                         textManager.paste?.let {
-                            ContextMenuItem("${sp}粘贴", it)
+                            ContextMenuItem(getStringBlocking(Res.string.paste), it)
                         },
                         textManager.selectAll?.let {
-                            ContextMenuItem("${sp}全选", it)
+                            ContextMenuItem(getStringBlocking(Res.string.select_all), it)
                         },
                     )
                 }
@@ -70,7 +71,6 @@ fun LogTextMenuProvider(
     addOperationText: (OperationText) -> Unit,
     content: @Composable () -> Unit
 ) {
-    val sp = "      "
     val textMenu = staticCompositionLocalOf {
         object : TextContextMenu {
             @Composable
@@ -82,13 +82,13 @@ fun LogTextMenuProvider(
                 val items = {
                     listOfNotNull(
                         textManager.cut?.let {
-                            ContextMenuItem("${sp}剪切", it)
+                            ContextMenuItem(getStringBlocking(Res.string.cut), it)
                         },
                         textManager.paste?.let {
-                            ContextMenuItem("${sp}粘贴", it)
+                            ContextMenuItem(getStringBlocking(Res.string.paste), it)
                         },
                         textManager.selectAll?.let {
-                            ContextMenuItem("${sp}全选", it)
+                            ContextMenuItem(getStringBlocking(Res.string.select_all), it)
                         },
                     )
                 }
@@ -113,7 +113,7 @@ fun LogTextMenuProvider(
 
                     val list = mutableListOf<ContextMenuItem>()
                     list.add(
-                        ContextMenuItem("${sp}复制") {
+                        ContextMenuItem(getStringBlocking(Res.string.copy)) {
                             clipboardManager.setText(
                                 AnnotatedString(
                                     if (text.contains(SP_Placeholders))
@@ -122,19 +122,19 @@ fun LogTextMenuProvider(
                             )
                         })
                     if (isShowSearch) {
-                        list.add(ContextMenuItem("${sp}搜索") {
+                        list.add(ContextMenuItem(getStringBlocking(Res.string.search)) {
                             search(text)
                         })
                     }
                     list.addAll(
                         listOf(
-                            ContextMenuItem("${sp}筛选") {
+                            ContextMenuItem(getStringBlocking(Res.string.filter)) {
                                 addOperationText(OperationText(text, OperationType.FILTER))
                             },
-                            ContextMenuItem("${sp}屏蔽") {
+                            ContextMenuItem(getStringBlocking(Res.string.shield)) {
                                 addOperationText(OperationText(text, OperationType.SHIELD))
                             },
-                            ContextMenuItem("${sp}高亮") {
+                            ContextMenuItem(getStringBlocking(Res.string.highlight)) {
                                 addOperationText(OperationText(text, OperationType.HIGHLIGHT))
                             },
                         )

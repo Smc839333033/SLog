@@ -34,9 +34,7 @@ fun getWindowState(): WindowState {
 
 
 object AppEvent {
-
     private val notifyListeners = ArrayList<NotifyListener>()
-
     fun identifyKeyEvent(keyEvent: KeyEvent): UserIntent {
         if (keyEvent.isMetaPressed && keyEvent.key == Key.V && keyEvent.type == KeyEventType.KeyUp) {
             return UserIntent.Paste
